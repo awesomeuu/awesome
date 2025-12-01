@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Awesome</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="left">
+        <h1 class="title">🧠 Awesome ✨</h1>
+        <p class="subtitle">A Website for Exploring Spelling Obstacles and Mastering Exercises</p>
+      </div>
+      <div class="right header-controls">
+        <button class="btn small" id="view-history-btn" title="View Performance">📊 History</button>
+        <button class="btn small" id="toggle-sound-btn" title="Toggle Sounds">🔊</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- HOME -->
+      <section id="home" class="active section-card">
+        <div style="text-align: center;">
+    <div class="character">🐵</div>
+</div>
+        <p class="intro-text" style="text-align: center;">
+    Welcome! Enter your name to start the game.
+</p>
+        <input id="kid-name" type="text" placeholder="Enter your name..." style="text-align: center;" />
+
+        <div class="home-actions">
+          <button class="btn main-btn" onclick="startGameIntro()">Start 🎮</button>
+          <button class="btn ghost" onclick="openHowTo()">How to Play ❓</button>
+        </div>
+      </section>
+
+      <!-- CATEGORIES -->
+      <section id="categories" class="section-card">
+        <h2>Hi, <span id="display-name"></span>! 👋</h2>
+        <p class="muted">Choose a category to practise</p>
+        <div class="button-grid">
+          <button class="btn category" onclick="chooseCategory('Name')">🧒 People</button>
+          <button class="btn category" onclick="chooseCategory('Place')">🌍 Places</button>
+          <button class="btn category" onclick="chooseCategory('Thing')">🎁 Things</button>
+          <button class="btn category" onclick="chooseCategory('Event')">🎉 Events</button>
+          <button class="btn category" onclick="chooseCategory('Animal')">🐶 Animals</button>
+        </div>
+        <div class="nav-back">
+          <button class="btn ghost" onclick="showSection('home')">← Back</button>
+        </div>
+      </section>
+
+      <!-- DIFFICULTY -->
+      <section id="difficulty" class="section-card">
+        <h2 id="cat-heading">Pick Your Level</h2>
+        <div class="button-grid">
+          <button class="btn easy" onclick="startSpelling('Easy')">Easy 😺</button>
+          <button class="btn hard" onclick="startSpelling('Difficult')">Difficult 🦁</button>
+        </div>
+        <div class="nav-back">
+          <button class="btn ghost" onclick="showSection('categories')">← Back</button>
+        </div>
+      </section>
+
+      <!-- GAME -->
+      <section id="game" class="section-card">
+        <div class="game-header">
+          <h2 id="category-title"></h2>
+          <div class="progress-wrap">
+            <div id="progress-text">0 / 0</div>
+            <div class="progress-bar">
+              <div id="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-body">
+          <div id="game-top">
+            <div class="character big" id="game-character">🦁</div>
+            <div class="controls">
+              <button id="play-sound-btn" class="btn sound-btn" onclick="playWord(true)">🔊 Play</button>
+            </div>
+          </div>
+
+          <p id="word-hint" class="hint-text"></p>
+
+          <input id="answer" type="text" placeholder="Type your spelling here..." autocomplete="off" />
+          <div class="game-actions">
+            <button class="btn submit-btn" onclick="checkAnswer()">Submit ✅</button>
+            <button class="btn ghost small" onclick="skipWord()">Skip ⏭</button>
+          </div>
+
+          <p id="feedback" class="feedback"></p>
+          <p id="score" class="score"></p>
+        </div>
+
+        <div class="nav-back">
+          <button class="btn ghost" onclick="showSection('difficulty')">← Back</button>
+        </div>
+      </section>
+
+      <!-- RESULT -->
+      <section id="result" class="section-card">
+        <h2>🎉 Great Job, <span id="final-name"></span>! 🎉</h2>
+        <p id="final-score" class="big-score"></p>
+        <div class="character">🦊</div>
+        <div class="result-actions">
+          <button class="btn main-btn" onclick="restart()">Play Again 🔁</button>
+          <button class="btn ghost" onclick="loadHistory(); showSection('history')">View History 📊</button>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="history" class="section-card">
+        <h2>📊 Performance History</h2>
+        <div id="history-list" class="history-list"></div>
+        <div class="history-actions">
+          <button class="btn" onclick="clearHistory()">🗑️ Clear History</button>
+          <button class="btn ghost" onclick="showSection('home')">Close</button>
+        </div>
+      </section>
+
+      <!-- HOW TO -->
+      <section id="howto" class="section-card">
+        <h2>How to Play</h2>
+        <ul class="howto-list">
+          <li>Enter your name and choose a category.</li>
+          <li>Pick a difficulty: Easy shows a hint; Difficult gives no hint.</li>
+          <li>Tap 🔊 to hear the word. Type the spelling and press Submit or Enter.</li>
+          <li>Correct answers give points and fun animations. Your results are saved locally.</li>
+        </ul>
+        <div class="nav-back">
+          <button class="btn ghost" onclick="showSection('home')">← Back</button>
+        </div>
+      </section>
+
+    </main>
+
+<!--
+    <footer class="app-footer">
+      <small>........</small>
+    </footer>
+-->
+  </div>
+
+  <!-- Script -->
+  <script src="script.js"></script>
+</body>
+</html>
