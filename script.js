@@ -1,9 +1,3 @@
-/* ==============================
-   FULL game script (Option C)
-   — full features + 1-sentence definition hints (Easy only)
-   ============================== */
-
-/* ---------------- Globals (kept from your current script) ---------------- */
 let kidName = "";
 let currentCategory = "";
 let difficulty = "";
@@ -12,9 +6,8 @@ let currentIndex = 0;
 let score = 0;
 let currentHint = "";
 let soundEnabled = true;
-let wordAttempts = []; // Stores {word, userInput, correct} for each attempt
+let wordAttempts = []; 
 
-/* ---------------- Word Bank (unchanged) ---------------- */
 const wordBank = {
   Name: {
     Easy: [
