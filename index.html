@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Awesome</title>
   <link rel="manifest" href="manifest.json">
-
-  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
-
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -29,13 +25,12 @@
       <!-- HOME -->
       <section id="home" class="active section-card">
         <div style="text-align: center;">
-    <div class="character">🐵</div>
-</div>
+          <div class="character">🐵</div>
+        </div>
         <p class="intro-text" style="text-align: center;">
-    Welcome! Enter your name to start the game.
-</p>
+          Welcome! Enter your name to start the game.
+        </p>
         <input id="kid-name" type="text" placeholder="Enter your name..." style="text-align: center;" />
-
         <div class="home-actions">
           <button class="btn main-btn" onclick="startGameIntro()">Start 🎮</button>
           <button class="btn ghost" onclick="openHowTo()">How to Play ❓</button>
@@ -45,13 +40,17 @@
       <!-- CATEGORIES -->
       <section id="categories" class="section-card">
         <h2>Hi, <span id="display-name"></span>! 👋</h2>
-        <p class="muted">Choose a category to practise</p>
+        <p class="muted">Choose a word blend to practise</p>
         <div class="button-grid">
-          <button class="btn category" onclick="chooseCategory('Name')">🧒 People</button>
-          <button class="btn category" onclick="chooseCategory('Place')">🌍 Places</button>
-          <button class="btn category" onclick="chooseCategory('Thing')">🎁 Things</button>
-          <button class="btn category" onclick="chooseCategory('Event')">🎉 Events</button>
-          <button class="btn category" onclick="chooseCategory('Animal')">🐶 Animals</button>
+          <button class="btn category" onclick="chooseCategory('CH Words')">CH 🔤</button>
+          <button class="btn category" onclick="chooseCategory('DR Words')">DR 🔤</button>
+          <button class="btn category" onclick="chooseCategory('PL Words')">PL 🔤</button>
+          <button class="btn category" onclick="chooseCategory('ST Words')">ST 🔤</button>
+          <button class="btn category" onclick="chooseCategory('TR Words')">TR 🔤</button>
+          <button class="btn category" onclick="chooseCategory('CR Words')">CR 🔤</button>
+          <button class="btn category" onclick="chooseCategory('FR Words')">FR 🔤</button>
+          <button class="btn category" onclick="chooseCategory('SH Words')">SH 🔤</button>
+          <button class="btn category" onclick="chooseCategory('TH Words')">TH 🔤</button>
         </div>
         <div class="nav-back">
           <button class="btn ghost" onclick="showSection('home')">← Back</button>
@@ -61,9 +60,25 @@
       <!-- DIFFICULTY -->
       <section id="difficulty" class="section-card">
         <h2 id="cat-heading">Pick Your Level</h2>
+        <div class="difficulty-info">
+          <div class="diff-card easy-card">
+            <div class="diff-icon">😺</div>
+            <div class="diff-detail">
+              <strong>Easy</strong>
+              <span>Audio + Word Definition Hint</span>
+            </div>
+          </div>
+          <div class="diff-card hard-card">
+            <div class="diff-icon">🦁</div>
+            <div class="diff-detail">
+              <strong>Hard</strong>
+              <span>Audio Only — No Hints!</span>
+            </div>
+          </div>
+        </div>
         <div class="button-grid">
           <button class="btn easy" onclick="startSpelling('Easy')">Easy 😺</button>
-          <button class="btn hard" onclick="startSpelling('Difficult')">Difficult 🦁</button>
+          <button class="btn hard" onclick="startSpelling('Hard')">Hard 🦁</button>
         </div>
         <div class="nav-back">
           <button class="btn ghost" onclick="showSection('categories')">← Back</button>
@@ -132,9 +147,9 @@
       <section id="howto" class="section-card">
         <h2>How to Play</h2>
         <ul class="howto-list">
-          <li>Enter your name and choose a category.</li>
-          <li>Pick a difficulty: Easy shows a hint; Difficult gives no hint.</li>
-          <li>Tap 🔊 to hear the word. Type the spelling and press Submit or Enter.</li>
+          <li>Enter your name and choose a word blend category (e.g. CH, DR, SH...).</li>
+          <li>Pick a difficulty: <strong>Easy</strong> plays audio AND shows a word definition hint; <strong>Hard</strong> plays audio only — no hints!</li>
+          <li>Tap 🔊 to hear the word again. Type the spelling and press Submit or Enter.</li>
           <li>Correct answers give points and fun animations. Your results are saved locally.</li>
         </ul>
         <div class="nav-back">
@@ -143,15 +158,8 @@
       </section>
 
     </main>
-
-<!--
-    <footer class="app-footer">
-      <small>........</small>
-    </footer>
--->
   </div>
 
-  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
