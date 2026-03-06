@@ -11,7 +11,7 @@ let wordAttempts = [];
 // Each word entry: { word: display/answer word, file: audio filename without extension }
 const wordBank = {
   "CH Words": [
-    { word: "chair",          file: "CHAIR.mp4" },
+    { word: "chair",          file: "CHAIR" },
     { word: "chalk",          file: "CHALK" },
     { word: "champion",       file: "CHAMPION" },
     { word: "chandelier",     file: "CHANDELIER" },
@@ -310,18 +310,7 @@ function showSection(id) {
   if (sec) sec.classList.add("active");
 }
 
-/* ---------------- Speech & Effects ---------------- */
-function speak(text, opts = {}) {
-  if (!soundEnabled) return;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = opts.rate || 1.05;
-  utter.pitch = opts.pitch || 1.6;
-  utter.lang = opts.lang || "en-US";
-  try {
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
-  } catch (e) {}
-}
+/* ---------------- Beep effects only (no AI voice) ---------------- */
 
 const audioCtx = (window.AudioContext || window.webkitAudioContext)
   ? new (window.AudioContext || window.webkitAudioContext)() : null;
@@ -406,10 +395,15 @@ function playAudioFile(filename) {
   // Encode spaces as %20 for filenames like "DRAGON FLY"
   const src = `audio/${encodeURIComponent(filename)}.m4a`;
   currentAudio = new Audio(src);
+  currentAudio.playbackRate = 0.75; // Slow down to 75% speed
   currentAudio.play().catch(err => {
-    console.warn("Audio play failed:", src, err);
-    // Fallback: use speech synthesis if audio file is missing
-    speak(filename.replace(/ /g, ''), { rate: 0.9, pitch: 1.5 });
+    console.warn("Audio file not found:", src, err);
+    const hint = el("word-hint");
+    if (hint) {
+      const prev = hint.textContent;
+      hint.textContent = "⚠️ Audio file not found. Check your audio/ folder.";
+      setTimeout(() => { hint.textContent = prev; }, 2500);
+    }
   });
 }
 
@@ -502,10 +496,7 @@ function showResult() {
   showSection("result");
 
   if (score >= Math.ceil(words.length * 0.6)) {
-    speak(`Great job ${kidName}, you got ${score} correct!`);
     if (soundEnabled) bePlaySuccessTune();
-  } else {
-    speak(`You scored ${score} out of ${words.length}. Better luck next time, ${kidName}.`);
   }
 
   savePerformance();
