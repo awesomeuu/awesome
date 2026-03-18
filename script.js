@@ -11,7 +11,7 @@ let wordAttempts = [];
 // Each word entry: { word: display/answer word, file: audio filename without extension }
 const wordBank = {
   "CH Words": [
-    { word: "chair",          file: "CHAIR.mp4" },
+    { word: "chair",          file: "CHAIR" },
     { word: "chalk",          file: "CHALK" },
     { word: "champion",       file: "CHAMPION" },
     { word: "chandelier",     file: "CHANDELIER" },
@@ -361,12 +361,12 @@ function chooseCategory(category) {
 
 function startSpelling(level) {
   difficulty = level;
+  // Use a copy of the word list WITHOUT shuffling — order is always the same
   words = [...(wordBank[currentCategory] || [])];
   if (!words || words.length === 0) {
     alert("No words available for this category.");
     return;
   }
-  words = words.sort(() => Math.random() - 0.5);
   currentIndex = 0;
   score = 0;
   currentHint = "";
