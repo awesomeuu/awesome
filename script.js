@@ -366,7 +366,7 @@ function startSpelling(level) {
     alert("No words available for this category.");
     return;
   }
-  // words remain in their defined order — consistent across all devices
+  words = words.sort(() => Math.random() - 0.5);
   currentIndex = 0;
   score = 0;
   currentHint = "";
