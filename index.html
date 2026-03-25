@@ -9,6 +9,35 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+  <!-- INTRO MODAL -->
+  <div id="intro-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-mascot">🧠</div>
+      <h2 class="modal-title">Welcome, <span id="modal-player-name">Speller</span>! ✨</h2>
+      <p class="modal-tagline">Please listen to the full introduction before continuing.</p>
+      <div class="modal-script">
+        <p id="intro-text-display">
+          Hello, awesome spellers! Are you ready to have some fun?<br><br>
+          Today, we are going to spell and learn about <strong>common nouns</strong>.<br><br>
+          Common nouns are general names for <em>people, places, animals, things, and events</em>.<br><br>
+          Please choose a category below and demonstrate your spelling skills.<br><br>
+          Good luck, and let us spell like <strong>champions!</strong>
+        </p>
+      </div>
+      <!-- Progress bar for intro speech -->
+      <div class="intro-progress-wrap" id="intro-progress-wrap">
+        <div class="intro-progress-bar"><div id="intro-progress-fill"></div></div>
+        <span id="intro-status-text">🔊 Playing introduction…</span>
+      </div>
+      <div class="modal-controls">
+        <button class="btn main-btn" id="proceed-btn" disabled onclick="closeIntroModal()">
+          🔒 Please wait for the introduction to finish…
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container">
     <header class="app-header">
       <div class="left">
@@ -30,7 +59,14 @@
         <p class="intro-text" style="text-align: center;">
           Welcome! Enter your name to start the game.
         </p>
-        <input id="kid-name" type="text" placeholder="Enter your name..." style="text-align: center;" />
+        <input id="kid-name" type="text" placeholder="Enter your name..." style="text-align: center;" autocomplete="off" />
+
+        <!-- Recent users list -->
+        <div id="recent-users-section" style="display:none;">
+          <p class="muted" style="text-align:center;margin:4px 0 8px;font-size:0.9rem;">Or pick a recent player:</p>
+          <div id="recent-users-list" class="recent-users-list"></div>
+        </div>
+
         <div class="home-actions">
           <button class="btn main-btn" onclick="startGameIntro()">Start 🎮</button>
           <button class="btn ghost" onclick="openHowTo()">How to Play ❓</button>
@@ -40,17 +76,9 @@
       <!-- CATEGORIES -->
       <section id="categories" class="section-card">
         <h2>Hi, <span id="display-name"></span>! 👋</h2>
-        <p class="muted">Choose a word blend to practise</p>
-        <div class="button-grid">
-          <button class="btn category" onclick="chooseCategory('CH Words')">CH 🔤</button>
-          <button class="btn category" onclick="chooseCategory('DR Words')">DR 🔤</button>
-          <button class="btn category" onclick="chooseCategory('PL Words')">PL 🔤</button>
-          <button class="btn category" onclick="chooseCategory('ST Words')">ST 🔤</button>
-          <button class="btn category" onclick="chooseCategory('TR Words')">TR 🔤</button>
-          <button class="btn category" onclick="chooseCategory('CR Words')">CR 🔤</button>
-          <button class="btn category" onclick="chooseCategory('FR Words')">FR 🔤</button>
-          <button class="btn category" onclick="chooseCategory('SH Words')">SH 🔤</button>
-          <button class="btn category" onclick="chooseCategory('TH Words')">TH 🔤</button>
+        <p class="muted">Choose a noun category to practise</p>
+        <div id="category-buttons" class="button-grid">
+          <!-- rendered by renderCategoryButtons() -->
         </div>
         <div class="nav-back">
           <button class="btn ghost" onclick="showSection('home')">← Back</button>
@@ -60,6 +88,7 @@
       <!-- DIFFICULTY -->
       <section id="difficulty" class="section-card">
         <h2 id="cat-heading">Pick Your Level</h2>
+        <div id="difficulty-resume-banner" class="resume-banner" style="display:none;"></div>
         <div class="difficulty-info">
           <div class="diff-card easy-card">
             <div class="diff-icon">😺</div>
@@ -79,6 +108,9 @@
         <div class="button-grid">
           <button class="btn easy" onclick="startSpelling('Easy')">Easy 😺</button>
           <button class="btn hard" onclick="startSpelling('Hard')">Hard 🦁</button>
+        </div>
+        <div id="start-over-wrap" style="display:none;margin-top:10px;text-align:center;">
+          <button class="btn ghost small" onclick="confirmStartOver()">🔄 Start Over for this Category</button>
         </div>
         <div class="nav-back">
           <button class="btn ghost" onclick="showSection('categories')">← Back</button>
@@ -147,10 +179,11 @@
       <section id="howto" class="section-card">
         <h2>How to Play</h2>
         <ul class="howto-list">
-          <li>Enter your name and choose a word blend category (e.g. CH, DR, SH...).</li>
+          <li>Enter your name and choose a noun category: <strong>People, Places, Things, Events,</strong> or <strong>Animals</strong>.</li>
           <li>Pick a difficulty: <strong>Easy</strong> plays audio AND shows a word definition hint; <strong>Hard</strong> plays audio only — no hints!</li>
           <li>Tap 🔊 to hear the word again. Type the spelling and press Submit or Enter.</li>
           <li>Correct answers give points and fun animations. Your results are saved locally.</li>
+          <li>Select your name from the Recent Players list to <strong>resume</strong> an unfinished game!</li>
         </ul>
         <div class="nav-back">
           <button class="btn ghost" onclick="showSection('home')">← Back</button>
