@@ -901,7 +901,6 @@ function savePerformance() {
     const record = {
       name: kidName, category: currentCategory, difficulty,
       score, total: words.length,
-      date: new Date().toLocaleString(),
       attempts: wordAttempts
     };
     let history = JSON.parse(localStorage.getItem(STORAGE_HISTORY_KEY) || "[]");
@@ -919,18 +918,22 @@ function loadHistory() {
     return;
   }
   const rows = history.slice().reverse().map(function(r){
+    // Filter to only incorrectly spelled entries (wrong answers and skips)
+    const incorrectAttempts = (r.attempts || []).filter(function(a){ return !a.correct; });
+
     let attHTML = "";
-    if (r.attempts && r.attempts.length > 0) {
-      attHTML = '<div style="margin-top:8px;font-size:0.85rem;background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;"><strong>Words:</strong><br>';
-      r.attempts.forEach(function(a){
-        const icon  = a.correct ? "✅" : "❌";
-        const color = a.correct ? "var(--good)" : "var(--bad)";
-        attHTML += '<span style="color:' + color + '">' + icon + ' <strong>' + a.word + '</strong>: ' + a.userInput + '</span><br>';
+    if (incorrectAttempts.length > 0) {
+      attHTML = '<div style="margin-top:8px;font-size:0.85rem;background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;"><strong>Misspelled Words:</strong><br>';
+      incorrectAttempts.forEach(function(a){
+        attHTML += '<span style="color:var(--bad)">❌ ' + a.userInput + '</span><br>';
       });
       attHTML += "</div>";
+    } else {
+      attHTML = '<div style="margin-top:8px;font-size:0.85rem;color:var(--good);"><strong>🎉 Perfect score — no misspellings!</strong></div>';
     }
+
     return '<div class="history-item"><strong>' + r.name + '</strong> • ' + r.category + ' (' + r.difficulty + ')<br>'
-      + 'Score: <strong>' + r.score + '/' + r.total + '</strong> • <small>' + r.date + '</small>' + attHTML + '</div>';
+      + 'Score: <strong>' + r.score + '/' + r.total + '</strong>' + attHTML + '</div>';
   }).join("");
   container.innerHTML = rows;
   showSection("history");
