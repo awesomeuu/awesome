@@ -309,8 +309,20 @@ function showSection(id) {
 
 /* ================================================================
    PERSISTENT USER STORAGE
+   Per-user shape:
+   {
+     name,
+     categoryProgress: {
+       "CategoryName__Easy": { difficulty, currentIndex, score, wordAttempts, words, completed },
+       "CategoryName__Hard": { difficulty, currentIndex, score, wordAttempts, words, completed },
+       ...
+     }
+   }
+
+   Storage key format: "<Category>__<Difficulty>"  (double underscore separator)
    ================================================================ */
 
+/** Build the storage key for a category+difficulty pair */
 function progKey(category, diff) {
   return category + "__" + diff;
 }
@@ -335,6 +347,7 @@ function getUser(name) {
   return getAllUsers().find(u => u.name.toLowerCase() === name.toLowerCase()) || null;
 }
 
+/** Save progress for the current category + difficulty slot */
 function saveCurrentProgress() {
   if (!kidName || !currentCategory || !difficulty) return;
   const user = getUser(kidName) || { name: kidName, categoryProgress: {} };
@@ -353,6 +366,7 @@ function saveCurrentProgress() {
   saveUser(user);
 }
 
+/** Mark the current category + difficulty slot as completed */
 function markCategoryCompleted() {
   if (!kidName || !currentCategory || !difficulty) return;
   const user = getUser(kidName) || { name: kidName, categoryProgress: {} };
@@ -365,12 +379,14 @@ function markCategoryCompleted() {
   saveUser(user);
 }
 
+/** Retrieve saved progress for a specific category + difficulty */
 function getCategoryProgress(name, category, diff) {
   const user = getUser(name);
   if (!user || !user.categoryProgress) return null;
   return user.categoryProgress[progKey(category, diff)] || null;
 }
 
+/** Delete saved progress for a specific category + difficulty */
 function clearCategoryProgress(name, category, diff) {
   const user = getUser(name);
   if (!user || !user.categoryProgress) return;
@@ -378,6 +394,11 @@ function clearCategoryProgress(name, category, diff) {
   saveUser(user);
 }
 
+/**
+ * Returns a summary object for a category across BOTH difficulties.
+ * Used for the category buttons badge logic.
+ * Returns: { anyInProgress, anyCompleted, totalInProgress }
+ */
 function getCategoryOverview(name, category) {
   const user = getUser(name);
   const cp = (user && user.categoryProgress) ? user.categoryProgress : {};
@@ -401,7 +422,8 @@ function getCategoryOverview(name, category) {
 }
 
 /* ================================================================
-   INTRO MODAL
+   INTRO MODAL — shown only for NEW users.
+   Returning users (picked from recent list) skip straight to categories.
    ================================================================ */
 let introProgressTimer = null;
 
@@ -417,6 +439,7 @@ function openIntroModal(name) {
   el("intro-progress-fill").style.width = "0%";
   el("intro-status-text").textContent = "🔊 Playing introduction…";
 
+  // Short delay to allow browser to register the user gesture before speaking
   setTimeout(function(){ playIntroVoiceAndUnlock(); }, 400);
 }
 
@@ -433,6 +456,7 @@ function playIntroVoiceAndUnlock() {
   utter.pitch  = 1.25;
   utter.lang   = "en-US";
 
+  // Estimate ~14 seconds for the intro at this rate
   animateIntroProgress(14000);
 
   utter.onend  = function(){ onIntroFinished(); };
@@ -476,6 +500,7 @@ function closeIntroModal() {
   showSection("categories");
 }
 
+/** Navigate straight to categories without showing the intro modal */
 function goToCategoriesDirect() {
   speechSynthesis.cancel();
   el("display-name").textContent = kidName;
@@ -495,15 +520,17 @@ function startGameIntro() {
   const isReturning = !!getUser(kidName);
 
   if (!isReturning) {
+    // Brand new user — save profile then show intro
     saveUser({ name: kidName, categoryProgress: {} });
     openIntroModal(kidName);
   } else {
+    // Returning user typed their name manually — skip intro
     goToCategoriesDirect();
   }
 }
 
 /* ================================================================
-   CATEGORY BUTTONS
+   CATEGORY BUTTONS — dynamic with progress badges
    ================================================================ */
 function renderCategoryButtons() {
   const container = el("category-buttons");
@@ -539,6 +566,7 @@ function chooseCategory(category) {
   currentCategory = category;
   el("cat-heading").textContent = "Category: " + category;
 
+  // Check if either difficulty has an in-progress session
   const easyProg = getCategoryProgress(kidName, category, "Easy");
   const hardProg = getCategoryProgress(kidName, category, "Hard");
 
@@ -573,7 +601,7 @@ function chooseCategory(category) {
 }
 
 /* ================================================================
-   START OVER
+   START OVER — clears BOTH difficulty slots for the category
    ================================================================ */
 function confirmStartOver() {
   if (!confirm('Start "' + currentCategory + '" from the beginning for ALL difficulties? Your saved progress will be lost.')) return;
@@ -585,17 +613,21 @@ function confirmStartOver() {
 
 /* ================================================================
    START SPELLING
+   Each difficulty level resumes or starts independently.
    ================================================================ */
 function startSpelling(level) {
+  // Look up progress slot for the chosen difficulty only
   const prog = getCategoryProgress(kidName, currentCategory, level);
 
   if (prog && !prog.completed && prog.currentIndex > 0 && prog.words && prog.words.length > 0) {
+    // Resume this difficulty's saved state
     difficulty   = prog.difficulty;
     words        = prog.words;
     currentIndex = prog.currentIndex;
     score        = prog.score;
     wordAttempts = prog.wordAttempts ? prog.wordAttempts.slice() : [];
   } else {
+    // Fresh start for this difficulty
     difficulty   = level;
     words        = (wordBank[currentCategory] || []).slice();
     currentIndex = 0;
@@ -772,6 +804,7 @@ function renderRecentUsers() {
   section.style.display = "block";
   list.innerHTML = users.map(function(u){
     const cp = u.categoryProgress || {};
+    // Count in-progress slots (any category__difficulty key that is not completed and has currentIndex > 0)
     const inProgCount = Object.keys(cp).filter(function(key){
       return cp[key] && !cp[key].completed && cp[key].currentIndex > 0;
     }).length;
@@ -783,10 +816,15 @@ function renderRecentUsers() {
   }).join("");
 }
 
+/**
+ * Selecting a recent user SKIPS the intro modal entirely —
+ * they have already been introduced.
+ */
 function selectRecentUser(name) {
   el("kid-name").value = name;
   kidName = name;
   if (!getUser(name)) saveUser({ name: name, categoryProgress: {} });
+  // Skip intro — go straight to categories
   goToCategoriesDirect();
 }
 
@@ -879,23 +917,26 @@ function loadHistory() {
     showSection("history");
     return;
   }
-
   const rows = history.slice().reverse().map(function(r){
     const attempts = r.attempts || [];
+    const isHard   = r.difficulty === "Hard";
 
     let attHTML = "";
     if (attempts.length > 0) {
-      attHTML = '<div style="margin-top:8px;font-size:0.85rem;background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;">'
-        + '<strong>All Spellings:</strong><br>';
+      attHTML = '<div style="margin-top:8px;font-size:0.85rem;background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;"><strong>All Spellings:</strong><br>';
       attempts.forEach(function(a){
-  if (a.correct) {
-    attHTML += '<span style="color:var(--good)">✅ ' + a.userInput + '</span><br>';
-  } else if (a.userInput === "(skipped)") {
-    attHTML += '<span style="color:var(--muted)">⏭ skipped</span><br>';
-  } else {
-    attHTML += '<span style="color:var(--bad)">❌ ' + a.userInput + '</span><br>';
-  }
-});
+        if (a.correct) {
+          attHTML += '<span style="color:var(--good)">✅ ' + a.userInput + '</span><br>';
+        } else if (a.userInput === "(skipped)") {
+          attHTML += '<span style="color:var(--muted)">⏭ skipped</span><br>';
+        } else if (isHard) {
+          attHTML += '<span style="color:var(--bad)">❌ ' + a.userInput + '</span>'
+            + ' <span style="color:#888">→</span>'
+            + ' <span style="color:var(--good);font-weight:700">' + a.word + '</span><br>';
+        } else {
+          attHTML += '<span style="color:var(--bad)">❌ ' + a.userInput + '</span><br>';
+        }
+      });
       attHTML += "</div>";
     } else {
       attHTML = '<div style="margin-top:8px;font-size:0.85rem;color:var(--muted);">No attempt data recorded.</div>';
@@ -904,7 +945,6 @@ function loadHistory() {
     return '<div class="history-item"><strong>' + r.name + '</strong> • ' + r.category + ' (' + r.difficulty + ')<br>'
       + 'Score: <strong>' + r.score + '/' + r.total + '</strong>' + attHTML + '</div>';
   }).join("");
-
   container.innerHTML = rows;
   showSection("history");
 }
@@ -938,6 +978,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
   renderRecentUsers();
 
+  // Debounced name save while typing
   const nameInput = el("kid-name");
   if (nameInput) {
     let debounce;
@@ -946,6 +987,9 @@ document.addEventListener("DOMContentLoaded", function(){
       debounce = setTimeout(function(){
         const name = nameInput.value.trim();
         if (name.length >= 2) {
+          // Only refresh the recent-users list — never pre-save a new name here,
+          // because that would cause getUser() to find it in startGameIntro()
+          // and incorrectly treat a brand-new user as a returning one.
           renderRecentUsers();
         }
       }, 700);
